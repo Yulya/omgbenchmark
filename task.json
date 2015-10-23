@@ -1,0 +1,19 @@
+{
+  "RabbitScenario.send_messages": [
+    {
+      "runner": {
+        "type": "constant",
+        "times": 10,
+        "concurrency": 10
+      },
+      "context": {
+        "oslomsg": {
+          "num_servers": 5,
+          "num_clients": 10,
+          "num_topics": 5,
+          "num_messages": 100
+        }
+      }
+    }
+  ]
+}
