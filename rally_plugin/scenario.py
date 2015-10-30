@@ -1,15 +1,17 @@
+import collections
 import random
+import string
+import yaml
 
 from rally.common import log as logging
 from rally.plugins.openstack.context.keystone.users import UserGenerator
 from rally.task import scenario
 from rally.task import context
 
-from oslo_config import cfg
-from oslo_messaging import rpc
-import oslo_messaging as messaging
+from scipy.stats import rv_discrete
 
 import client as cl
+
 
 LOG = logging.getLogger(__name__)
 
@@ -45,8 +47,11 @@ class RabbitScenario(scenario.Scenario):
         client.call({}, 'info', message=msg)
 
     @scenario.configure()
-    def send_messages(self):
+    def send_messages(self, num_messages):
         client = self._get_client()
-        for i in range(self.context['num_messages'] or 100):
-            msg = "test message"
+        ranges = cl.RANDOM_VARIABLE.rvs(size=num_messages)
+        for range_start in ranges:
+            length = random.randint(range_start, range_start + 500)
+            msg = ''.join(
+                random.choice(string.lowercase) for x in range(length))
             client.call({}, 'info', message=msg)

@@ -11,8 +11,11 @@
           "num_servers": 5,
           "num_clients": 10,
           "num_topics": 5,
-          "num_messages": 100
+          "msg_length_file": "messages_length.yaml"
         }
+      },
+      "args": {
+        "num_messages": 100
       }
     }
   ]

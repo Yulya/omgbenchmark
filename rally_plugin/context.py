@@ -47,9 +47,7 @@ class OsloMsgContext(context.Context):
         num_topics = self.config.get('num_topics')
         self._start_servers(transport, num_servers, num_topics)
         client.setup_clients(rabbit_url, self.config['num_clients'])
-        self.context['num_messages'] = self.config.get("num_messages", None)
-        self.context['allowed_failures'] = self.config.get("allowed_failures",
-                                                           None)
+        client.init_random_generator(self.config['msg_length_file'])
 
     def _start_servers(self, transport, num_servers, num_topics):
         topics = [petname.Generate(3, "_") for _i in range(num_topics)]
