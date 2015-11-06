@@ -36,7 +36,7 @@ class RabbitScenario(scenario.Scenario):
         random_server = random.randint(0, len(self.context['servers']) - 1)
         topic, server_name = self.context['servers'][random_server]
         client = cl.get_client()
-        client = client.prepare(timeout=1, topic=topic,
+        client = client.prepare(timeout=30, topic=topic,
                                 server=server_name)
         return client
 
@@ -50,8 +50,15 @@ class RabbitScenario(scenario.Scenario):
     def send_messages(self, num_messages):
         client = self._get_client()
         ranges = cl.RANDOM_VARIABLE.rvs(size=num_messages)
+        errors = 0
         for range_start in ranges:
             length = random.randint(range_start, range_start + 500)
             msg = ''.join(
                 random.choice(string.lowercase) for x in range(length))
-            client.call({}, 'info', message=msg)
+            try:
+                client.call({}, 'info', message=msg)
+            except Exception:
+                errors += 1
+
+        if errors:
+            raise Exception("scenario failed")
