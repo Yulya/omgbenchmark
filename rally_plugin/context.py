@@ -1,7 +1,7 @@
+import multiprocessing
 import itertools
 from oslo_config import cfg
 
-import threading
 import time
 from rally.task import context
 from rally.task.engine import BenchmarkEngine
@@ -36,8 +36,7 @@ class OsloMsgContext(context.Context):
     """
     def __init__(self, *args, **kwargs):
         super(OsloMsgContext, self).__init__(*args, **kwargs)
-        self.stop_servers = False
-        self.stop_servers_ev = threading.Event()
+        self.server_processes = []
 
     def setup(self):
         rabbit_url = self.context['admin']['endpoint'].auth_url
@@ -61,17 +60,17 @@ class OsloMsgContext(context.Context):
 
             server = rpc.get_rpc_server(transport, target, [RpcEndpoint()],
                                         executor='threading')
-            th = threading.Thread(target=self._start_server,
-                                  args=(server, ))
-            th.start()
+            pr = multiprocessing.Process(target=self._start_server,
+                                         args=(server,))
+            pr.start()
+            self.server_processes.append(pr)
             self.context['servers'].append((topic, server_name))
 
     def _start_server(self, server):
         server.start()
-        while not self.stop_servers:
-            time.sleep(1)
-        LOG.info("Stopping server ...")
-        server.stop()
+        while 1:
+            time.sleep(3)
 
     def cleanup(self):
-        self.stop_servers = True
+        for p in self.server_processes:
+            p.terminate()
