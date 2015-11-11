@@ -57,7 +57,8 @@ class RabbitScenario(scenario.Scenario):
                 random.choice(string.lowercase) for x in range(length))
             try:
                 client.call({}, 'info', message=msg)
-            except Exception:
+            except Exception as e:
+                LOG.error(e.message)
                 errors += 1
 
         if errors:
