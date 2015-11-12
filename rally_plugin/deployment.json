@@ -1,4 +1,4 @@
 {
   "type": "RabbitMQEngine",
-  "url": "rabbit://rabbit:rabbit@172.18.194.43/"
+  "url": "rabbit://guest:guest@localhost/"
 }

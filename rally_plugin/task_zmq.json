@@ -1,0 +1,32 @@
+{
+  "RabbitScenario.send_messages": [
+    {
+      "runner": {
+        "type": "constant",
+        "times": 100,
+        "concurrency": 40
+      },
+      "context": {
+        "oslomsg": {
+          "num_servers": 10,
+          "num_clients": 10,
+          "num_topics": 5,
+          "msg_length_file": "messages_length.yaml",
+          "config_opts": {
+            "DEFAULT": {
+              "rpc_zmq_matchmaker": "redis",
+              "rpc_zmq_ipc_dir": "zmq"
+            },
+            "matchmaker_redis": {
+              "host": "127.0.0.1",
+              "port": "6379"
+            }
+          }
+        }
+      },
+      "args": {
+        "num_messages": 100
+      }
+    }
+  ]
+}
