@@ -15,7 +15,8 @@
           "config_opts": {
             "DEFAULT": {
               "rpc_zmq_matchmaker": "redis",
-              "rpc_zmq_ipc_dir": "zmq"
+              "rpc_zmq_ipc_dir": "zmq",
+              "zmq_use_broker": "False"
             },
             "matchmaker_redis": {
               "host": "127.0.0.1",

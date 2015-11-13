@@ -1,0 +1,4 @@
+{
+  "type": "MessagingEngine",
+  "url": "zmq://"
+}
