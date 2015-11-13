@@ -1,4 +1,4 @@
 {
-  "type": "ZeroMQEngine",
+  "type": "MessagingEngine",
   "url": "zmq://"
 }
