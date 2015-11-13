@@ -26,5 +26,6 @@
   
 - Run task:
   modify **task.json** with your benchmarking parameters and config opts then run
+  ```
   rally --plugin-paths <path_to_rally_plugin_files> task start task.json
-  
+  ```
