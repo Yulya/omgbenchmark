@@ -1,3 +1,6 @@
+import eventlet
+eventlet.monkey_patch()
+
 import multiprocessing
 import itertools
 from oslo_config import cfg
@@ -71,15 +74,15 @@ class OsloMsgContext(context.Context):
             target = messaging.Target(topic=topic,
                                       server=server_name)
 
-            server = rpc.get_rpc_server(transport, target, [RpcEndpoint()],
-                                        executor='threading')
             pr = multiprocessing.Process(target=self._start_server,
-                                         args=(server,))
+                                         args=(transport, target))
             pr.start()
             self.server_processes.append(pr)
             self.context['servers'].append((topic, server_name))
 
-    def _start_server(self, server):
+    def _start_server(self, transport, target):
+        server = rpc.get_rpc_server(transport, target, [RpcEndpoint()],
+                                    executor='eventlet')
         server.start()
         while 1:
             time.sleep(3)
