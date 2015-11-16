@@ -4,13 +4,13 @@
       "runner": {
         "type": "constant",
         "times": 100,
-        "concurrency": 40
+        "concurrency": 1
       },
       "context": {
         "oslomsg": {
-          "num_servers": 10,
-          "num_clients": 10,
-          "num_topics": 5,
+          "num_servers": 1,
+          "num_clients": 2,
+          "num_topics": 1,
           "msg_length_file": "messages_length.yaml",
           "config_opts": {
             "DEFAULT": {
