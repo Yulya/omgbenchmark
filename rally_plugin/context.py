@@ -72,7 +72,7 @@ class OsloMsgContext(context.Context):
                                       server=server_name)
 
             server = rpc.get_rpc_server(transport, target, [RpcEndpoint()],
-                                        executor='threading')
+                                        executor='blocking')
             pr = multiprocessing.Process(target=self._start_server,
                                          args=(server,))
             pr.start()
