@@ -15,7 +15,7 @@
           "config_opts": {
             "DEFAULT": {
               "rpc_zmq_matchmaker": "redis",
-              "rpc_zmq_ipc_dir": "zmq",
+              "rpc_zmq_ipc_dir": "/var/run/openstack",
               "zmq_use_broker": "False"
             },
             "matchmaker_redis": {
