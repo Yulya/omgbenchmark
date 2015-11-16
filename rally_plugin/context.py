@@ -1,3 +1,6 @@
+import eventlet
+eventlet.monkey_patch()
+
 import multiprocessing
 import itertools
 from oslo_config import cfg
@@ -79,7 +82,7 @@ class OsloMsgContext(context.Context):
 
     def _start_server(self, transport, target):
         server = rpc.get_rpc_server(transport, target, [RpcEndpoint()],
-                                    executor='blocking')
+                                    executor='eventlet')
         server.start()
         while 1:
             time.sleep(3)
