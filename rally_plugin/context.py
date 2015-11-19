@@ -7,7 +7,7 @@ from oslo_config import cfg
 
 import time
 from rally.task import context
-from rally.task.engine import BenchmarkEngine
+from rally.task.engine import TaskEngine
 
 from rally.common import log as logging
 from oslo_messaging import rpc
@@ -19,7 +19,7 @@ import client
 
 
 fake_func = lambda *x, **y: None
-BenchmarkEngine.validate = fake_func
+TaskEngine.validate = fake_func
 
 LOG = logging.getLogger(__name__)
 logger = logging.oslogging.logging.getLogger("oslo.messaging")
