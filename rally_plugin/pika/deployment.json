@@ -1,0 +1,4 @@
+{
+  "type": "MessagingEngine",
+  "url": "pika://guest:guest@localhost/"
+}
