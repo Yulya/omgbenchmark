@@ -1,3 +1,5 @@
+import copy
+import json
 import yaml
 import collections
 
@@ -10,6 +12,7 @@ from scipy.stats import rv_discrete
 
 CLIENTS = None
 RANDOM_VARIABLE = None
+MESSAGES = {}
 
 
 def setup_clients(rabbit_url, num_clients):
@@ -53,4 +56,43 @@ def init_random_generator(msg_length_file):
     random_var = rv_discrete(values=(ranges_start, ranges_dist))
     global RANDOM_VARIABLE
     RANDOM_VARIABLE = random_var
+    global MESSAGES
+    MESSAGES = create_messages(ranges_start)
 
+
+def create_messages(messages_length):
+    networks_info = open('networks.json').read()
+    net_info_dict = json.loads(networks_info)
+
+    network = net_info_dict['result'][0]
+    subnet = network['subnets'][0]
+    subnet_len = len(json.dumps(subnet))
+
+    messages = {}
+    for message_length in messages_length:
+        msg = copy.deepcopy(net_info_dict)
+        msg['result'] = []
+
+        message_length_c = message_length
+        message_length_c -= len(json.dumps(msg))
+
+        net_n = 0
+
+        while message_length_c > 0:
+            net = copy.deepcopy(net_info_dict['result'][net_n])
+
+            net_copy = copy.deepcopy(net)
+            net_copy['subnets'] = []
+            net_l = len(json.dumps(net_copy))
+
+            subnet_count = (message_length_c - net_l) / subnet_len
+
+            subnet_count = subnet_count if subnet_count >= 0 else 0
+
+            net['subnets'] = net['subnets'][:subnet_count]
+            msg['result'].append(net)
+            net_n += 1
+            message_length_c -= len(json.dumps(net))
+
+        messages[message_length] = msg
+    return messages

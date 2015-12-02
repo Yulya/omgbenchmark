@@ -8,8 +8,6 @@ from rally.plugins.openstack.context.keystone.users import UserGenerator
 from rally.task import scenario
 from rally.task import context
 
-from scipy.stats import rv_discrete
-
 import client as cl
 
 
@@ -53,12 +51,9 @@ class RabbitScenario(scenario.Scenario):
         ranges = cl.RANDOM_VARIABLE.rvs(size=num_messages)
         errors = 0
         for range_start in ranges:
-            length = random.randint(range_start, range_start + 500)
-            msg = ''.join(
-                random.choice(string.lowercase) for x in range(length))
+            msg = cl.MESSAGES[range_start]
             try:
-                rep = client.call({}, 'info', message=msg)
-                LOG.info("Reply received in client %s" % rep)
+                client.call({}, 'info', message=msg)
             except Exception as e:
                 LOG.error(e.message)
                 errors += 1
