@@ -27,7 +27,11 @@ logger.setLevel("DEBUG")
 
 
 class RpcEndpoint(object):
+    def __init__(self, sync_counter):
+        self.sync_counter = sync_counter
+
     def info(self, ctxt, message):
+        self.sync_counter.value += 1
         return "OK: %s" % message
 
 
@@ -41,6 +45,7 @@ class OsloMsgContext(context.Context):
     def __init__(self, *args, **kwargs):
         super(OsloMsgContext, self).__init__(*args, **kwargs)
         self.server_processes = []
+        self.messages_received = []
 
     def set_config_opts(self):
         config_opts = self.config.get('config_opts', {})
@@ -73,20 +78,25 @@ class OsloMsgContext(context.Context):
             LOG.info("Starting server %s topic %s" % (server_name, topic))
             target = messaging.Target(topic=topic,
                                       server=server_name)
-
+            sync_counter = multiprocessing.Value('l', 0)
+            self.messages_received.append(sync_counter)
             pr = multiprocessing.Process(target=self._start_server,
-                                         args=(transport, target))
+                                         args=(transport, target,
+                                               sync_counter))
             pr.start()
             self.server_processes.append(pr)
             self.context['servers'].append((topic, server_name))
 
-    def _start_server(self, transport, target):
-        server = rpc.get_rpc_server(transport, target, [RpcEndpoint()],
+    def _start_server(self, transport, target, sync_counter):
+        server = rpc.get_rpc_server(transport, target,
+                                    [RpcEndpoint(sync_counter)],
                                     executor='eventlet')
         server.start()
         while 1:
             time.sleep(3)
 
     def cleanup(self):
+        count = sum([m.value for m in self.messages_received])
+        LOG.info("Messages count: %s" % count)
         for p in self.server_processes:
             p.terminate()
