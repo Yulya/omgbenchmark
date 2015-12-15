@@ -1,0 +1,22 @@
+{
+  "RabbitScenario.send_messages_timeout": [
+    {
+      "runner": {
+        "type": "constant",
+        "times": 23,
+        "concurrency": 40
+      },
+      "context": {
+        "oslomsg": {
+          "num_servers": 10,
+          "num_clients": 10,
+          "num_topics": 5,
+          "msg_length_file": "messages_length.yaml"
+        }
+      },
+      "args": {
+        "timeout": 100
+      }
+    }
+  ]
+}
