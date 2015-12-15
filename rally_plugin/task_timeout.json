@@ -3,7 +3,7 @@
     {
       "runner": {
         "type": "constant",
-        "times": 23,
+        "times": 40,
         "concurrency": 40
       },
       "context": {
