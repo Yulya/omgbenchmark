@@ -54,7 +54,7 @@ class OsloMsgContext(context.Context):
                 setattr(obj, opt, value)
 
     def setup(self):
-        url = self.context['admin']['endpoint'].auth_url
+        url = self.context['admin']['credential'].auth_url
         self.set_config_opts()
         transport = messaging.get_transport(cfg.CONF, url=url)
         self.context['servers'] = []
