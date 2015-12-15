@@ -1,6 +1,7 @@
 import collections
 import random
 import string
+import time
 import yaml
 
 from rally.common import log as logging
@@ -51,6 +52,31 @@ class RabbitScenario(scenario.Scenario):
         ranges = cl.RANDOM_VARIABLE.rvs(size=num_messages)
         errors = 0
         for range_start in ranges:
+            msg = cl.MESSAGES[range_start]
+            try:
+                client.call({}, 'info', message=msg)
+            except Exception as e:
+                LOG.error(e.message)
+                errors += 1
+
+        if errors:
+            raise Exception("scenario failed")
+        else:
+            LOG.info("Scenario done")
+
+    @scenario.configure()
+    def send_messages_timeout(self, timeout):
+        curt = time.time()
+        client = self._get_client()
+        ranges = cl.RANDOM_VARIABLE.rvs(size=1000)
+        rangesit = ranges.__iter__()
+        errors = 0
+        while time.time() - curt < timeout:
+            try:
+                range_start = rangesit.next()
+            except StopIteration:
+                rangesit = cl.RANDOM_VARIABLE.rvs(size=1000).__iter__()
+                range_start = rangesit.next()
             msg = cl.MESSAGES[range_start]
             try:
                 client.call({}, 'info', message=msg)
