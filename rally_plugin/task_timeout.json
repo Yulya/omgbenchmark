@@ -11,7 +11,8 @@
           "num_servers": 10,
           "num_clients": 10,
           "num_topics": 5,
-          "msg_length_file": "messages_length.yaml"
+          "msg_length_file": "messages_length.yaml",
+          "msg_timestamp_file": "/tmp/timestamps.txt"
         }
       },
       "args": {

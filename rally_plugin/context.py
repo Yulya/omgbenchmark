@@ -27,11 +27,11 @@ logger.setLevel("DEBUG")
 
 
 class RpcEndpoint(object):
-    def __init__(self, sync_counter):
-        self.sync_counter = sync_counter
+    def __init__(self, messages):
+        self.messages = messages
 
     def info(self, ctxt, message):
-        self.sync_counter.value += 1
+        self.messages.put(time.time())
         return "OK: %s" % message
 
 
@@ -45,7 +45,7 @@ class OsloMsgContext(context.Context):
     def __init__(self, *args, **kwargs):
         super(OsloMsgContext, self).__init__(*args, **kwargs)
         self.server_processes = []
-        self.messages_received = []
+        self.messages_received = multiprocessing.Queue()
 
     def set_config_opts(self):
         config_opts = self.config.get('config_opts', {})
@@ -78,25 +78,28 @@ class OsloMsgContext(context.Context):
             LOG.info("Starting server %s topic %s" % (server_name, topic))
             target = messaging.Target(topic=topic,
                                       server=server_name)
-            sync_counter = multiprocessing.Value('l', 0)
-            self.messages_received.append(sync_counter)
             pr = multiprocessing.Process(target=self._start_server,
                                          args=(transport, target,
-                                               sync_counter))
+                                               self.messages_received))
             pr.start()
             self.server_processes.append(pr)
             self.context['servers'].append((topic, server_name))
 
-    def _start_server(self, transport, target, sync_counter):
+    def _start_server(self, transport, target, messages):
         server = rpc.get_rpc_server(transport, target,
-                                    [RpcEndpoint(sync_counter)],
+                                    [RpcEndpoint(messages)],
                                     executor='eventlet')
         server.start()
         while 1:
             time.sleep(3)
 
     def cleanup(self):
-        count = sum([m.value for m in self.messages_received])
-        LOG.info("Messages count: %s" % count)
         for p in self.server_processes:
             p.terminate()
+        count = self.messages_received.qsize()
+        with open(self.config['msg_timestamp_file'], 'w+') as f:
+            while not self.messages_received.empty():
+                f.write(str(self.messages_received.get()))
+                f.write('\n')
+
+        LOG.info("Messages count: %s" % count)
